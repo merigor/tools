@@ -1,0 +1,43 @@
+CC=clang
+CFLAGS=-std=c11 -g -O2 -Wall -Wextra -Weverything -Wpedantic
+# -D_FORTIFY_SOURCE=2 <-- triggers many warnings about recursive macros
+# -fpie
+# -fstack-protector
+# -Wformat -Wformat-security -Werror=format-security
+# -fsanitize=safe-stack
+# -fsanitize=cfi -flto -fvisibility=hidden
+# enabling security features increases the size to from 13k to 150k !!
+
+SRC=c2.c
+OBJ=${SRC:.c=.o}
+EXE=${SRC:.c=.x}
+BUGLOG=bugs.txt
+
+all: c2
+
+c2: ${OBJ}
+	${CC} ${CFLAGS} ${OBJ} -o ${EXE}
+
+%.o: %.c Makefile
+	${CC} ${CFLAGS}	-c $<
+
+clean:
+	rm -f a.out ${OBJ} ${EXE} ${BUGLOG}
+
+test: all
+	echo "" > ${BUGLOG}
+	echo "----------------- FLAWFINDER --------------------" >> ${BUGLOG}
+	flawfinder ${SRC} >> ${BUGLOG} 2>&1
+	echo "" >> ${BUGLOG}
+	echo "-------------------- RATS -----------------------" >> ${BUGLOG}
+	rats ${SRC} >> ${BUGLOG} 2>&1
+	echo "" >> ${BUGLOG}
+	echo "------------------ CPPCHECK ---------------------" >> ${BUGLOG}
+	cppcheck --enable=all -f -I/usr/include --inconclusive --std=c11 --suppress=missingInclude ${SRC} >> ${BUGLOG} 2>&1
+# -v --report-progress
+	echo "" >> ${BUGLOG}
+	echo "------------------- SPLINT ----------------------" >> ${BUGLOG}
+	splint ${SRC} >> ${BUGLOG} 2>&1
+	echo "" >> ${BUGLOG}
+	echo "------------------ VALGRIND ---------------------" >> ${BUGLOG}
+	valgrind -v --leak-check=full --show-leak-kinds=all --track-origins=yes ./${EXE} >> ${BUGLOG} 2>&1

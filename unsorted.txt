@@ -1,0 +1,49 @@
+docker kill $( docker ps -q )
+docker rm $( docker ps -a -q )
+docker rmi $( docker images -q )
+
+
+docker exec influxdb-container influx_inspect export -datadir "/var/lib/influxdb/data" -waldir "/var/lib/influxdb/wal" -out "/pfit/db/test" -database telegraf -retention 24_hours
+
+split -l 10000 -d -a 10 filename
+
+
+for i in `ls x*`; do grep -v "nojob" $i >> test1; done;
+
+for i in `ls x*`; do grep -v "nojob" $i | cut -d',' -f 4 | uniq >> test2; done;  <-- jobid1, -f5 for jobid2  DOESN'T work for lines starting with pfit-uprocstat: here -f3 and -f4 needed
+
+
+https://wiki.alpinelinux.org/wiki/How_to_get_regular_stuff_working
+golang:alpine
+&& apk update && apk upgrade && apk add git build-base binutils bash \
+
+
+https://twitter.com/helpermethod/status/996085566763618306?s=20 | Oliver Weiler on Twitter: "Tipp of the day: Add the line [[ $TRACE ]] && set -x to the top of your Bash script to easily call your script with debugging enabled. $ TRACE=1 ./my-script.sh"
+
+
+pandoc -f markdown --variable=geometry:a4paper --variable=geometry:margin=1cm -o grafana-and-pdf-report.pdf grafana-and-pdf-report.md
+
+
+prospector -s veryhigh -F -i other -w pep257 -w vulture -w mypy -w pyroma -w frosted -D -T -m > docstrings.txt
+
+
+du -h | sort -h -r
+
+
+Extension creating the ".dist" folder: extensions/brapifra.c-compiler-0.0.4/extension.js:    terminal.sendText("mkdir .dist");
+
+
+gcc options: -Wall -Wpedantic -Wextra -Wcast-align -Wcast-qual -Wvla -Wshadow -Wsuggest-attribute=const -Wmissing-format-attribute -Wuninitialized -Winit-self -Wdouble-promotion -Wstrict-aliasing -Weffc++ -Wno-unused-local-typedefs -fsanitize
+
+build.sh
+# todo: check if makefile would be better
+
+# tests
+prospector
+coverage run --branch -m pytest -v --color=yes .
+find . -iname "*.py" | grep -v "__init__.py" | xargs ~/.local/bin/coverage report -m
+
+# badges
+anybadge -l errors --value=$(prospector | grep "Messages Found:" | cut -d ' ' -f 5) -m "%3d" -o -f docs/linter.svg
+anybadge -l tests --value=$(pytest -v --color=yes --cov . | grep collected | tr -s ' ' | cut -d ' ' -f 4) -m "%3d" -o -f docs/tests.svg
+anybadge -l coverage --value=$(pytest -v --color=yes --cov . | grep TOTAL | tr -s ' ' | cut -d ' ' -f 4) -o -f docs/coverage.svg 2=red 4=orange 8=yellow 10=green
