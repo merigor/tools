@@ -2,12 +2,13 @@
 
 for i in $(ls -d */); do
 	cd $i
+	echo "--------------------------------------------------------"
 	pwd
 	if [ -d ".git" ]; then
-		git pull
+		git status && git pull
 	fi
 	if [ -d ".hg" ]; then
-		hg pull
+		hg status && hg pull && hg update
 	fi
 	cd ..
 done
